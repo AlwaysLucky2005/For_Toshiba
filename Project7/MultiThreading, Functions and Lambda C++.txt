@@ -1,0 +1,72 @@
+#include <thread>
+#include <chrono>
+#include <mutex>
+#include <functional>
+//all is in namespace std
+this_thread::get_id() --> to get id of this thread
+this_thread::sleep_for(chrono::milliseconds(x)) --> to stop this thread for x milliseconds
+thread th(func, param1, param2) --> to call constructor of thread giving him function func with his parameters
+th.join() --> this stops the current thread until the th(thread)'s function finishes(returns)
+th.detach() --> to detach(arandznacnel) thread from the thread from where it was called // the threads are allowed to execute independently form each other
+if you want to start thread in other point, non when you declare it use
+thread th;
+th = thread(func);
+------------------------------------------------------------------------------------------------
+thread(func, std::ref(param)) --> To give parameter by reference// &param isn't working
+pointer of function --> type(*name)(params) --> int(*func1)(int x, int y)
+function<void(int,int)> f = func1 or = [](){} --> lambda function(anonym func)
+f() --> calling function which is in container
+[]()
+{
+	blablabla
+}
+lambda function catching
+[var](){} --> any variable (you cant modificate, though it is clone) // by its value
+[var]() mutable {} --> it allows to modificate clone of var, not original // by its value
+[&var](){} --> allows to modificate original variable // by reference
+[&](){} --> catching all variables //by reference
+[=](){} --> catching all variables //by value
+also you can list them using ','
+[&, var] --> catching all vars by ref, variable var by value
+[=, &x] --> catching all vars by value, but x by reference
+and also 
+[this] --> if lambda is in class and you want to catch all class
+if you want to define what type is returning your lambda fundtion 
+--> []() -> int(or T) {}
+---------------------------------------------------------------------------------------------------
+if you want to get returned value from your threaded function you can use lambda
+--> instead of --> thread th(Sum, a, b, result); // answer is returned value
+use --> thread th([&result]()
+	{
+		result = Sum(a,b);
+	});
+!!! If you want to call member void function of some class you can use lambda or this->
+-> MyClass m;
+th(MyClass::Function, m, param) --> in other cases you have to use lambda
+---------------------------------------------------------------------------------------------------------
+MUTEX 
+if there is problems between threads and resources they're using and if you want to make it that only one thread 
+can reach that resource at any moment you can use Mutex. You just have to declare mutex object --> mutex mtx;
+mtx.lock(); --> this will not allow other thread to use that thread until --> unlock()
+mtx.unlock(); --> Whatever is in mutex lock and unlock it will not being done at same time in different threads
+for example
+void f1()
+{
+	mtx.lock();
+	readFromText();
+	mtx.unlock();
+}
+void f2()
+{
+	mtx.lock();
+	writeToText();
+	mtx.unlock();
+}
+lock_guard<mutex> guard(mtx) --> use this if you don't want to manually write lock, unlock
+also you can use '{' and '}' to choose area of lock_guard
+{
+	lock_guard<mutex> guard1(mtx);
+	action1();
+}
+	action2();
+action2 is out of range of lock_guard

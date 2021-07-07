@@ -1,0 +1,128 @@
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/highgui.hpp>
+#include <opencv2/imgproc.hpp>
+#include <iostream>
+using namespace cv;
+using namespace std;
+int main() {
+
+	string path = "C:/Users/User/Downloads/test.png";
+	Mat img = imread(path); // -> Mat is a object which can contain image
+				// imread(path) --> to read image from "path" 
+	imshow("Image", img);	// imshow("Name of window", image you want to show)
+	waitKey(0); //--> if you don't write this it will close 
+	return 0;
+
+} --> simple way to show picture
+int main() {
+
+	string path = "Resources/test_video.mp4";
+	VideoCapture cap(path);  // it is containg video as array of images
+	Mat img;
+	while (true)
+	{
+		cap.read(img); --> using this you can get 1 image from array
+		imshow("Video", img);
+		waitKey(15);
+	}
+	imwrite(img_path, img); --> this writes image to storage in img_path(save image)
+		!!!!!!!!!!!!!!!!!!! Also you can capture image from your webcam simply typing your webcam id instead of path
+					VideoCapture cap(0);
+
+}
+
+
+--------------------------------------MAT--------------------------------------
+imread(path	); --> read from file
+imwrite(path, img); --> write to file
+imshow("Window_name", img); --> show image in window
+img.empty() --> this returns true if matrix is empty
+-----------------------------------Initializing the mat-----------------------------
+Mat M(2,4, CV_8UC3, Scalar(0,0,255));
+CV_8UC3 it type of matrix --> this will make matrix 2*4 8bit, unsigned, with 3 channel
+Mat m; m.create(*) --> * == the same as in upper line
+cv::Scalar() --> initializes the matrix with vector you give him (BGR)--> (0,0,255) will be red\
+you can initialize your matrix using Mat::zeros, Mat::ones, Mat::eye
+you can initialize your matrix using --> Mat C = (Mat_<double>(3,3) << 0, -1, 0, -1, 5, -1, 0, -1, 0); 
+Mat f = a.clone(); --> you have to use this, because when you do Mat a = b, or Mat a(b), it doesn't copy the image matrix, it is copying the reference to it
+Mat g; a.copyto(g); -->^ The assignment operator and the copy constructor only copies the header
+to format outputing of matrix use-->
+cout << "R (default) = " << endl <<    	 	  R     	     << endl << endl; --> defualt
+cout << "R (python)  = " << endl << format(R, Formatter::FMT_PYTHON) << endl << endl; --> python style
+cout << "R (csv)     = " << endl << format(R, Formatter::FMT_CSV   ) << endl << endl; --> seperated by comms(,)
+cout << "R (numpy)   = " << endl << format(R, Formatter::FMT_NUMPY ) << endl << endl; --> numpy style
+cout << "R (c)       = " << endl << format(R, Formatter::FMT_C     ) << endl << endl; --> c style
+------------------------------------------------------------------------------------------------------
+cv::Mat img = cv::imread("lenna.png");
+for(int i=0; i<img.rows; i++)
+    for(int j=0; j<img.cols; j++) 
+        // You can now access the pixel value with cv::Vec3b
+        std::cout << img.at<cv::Vec3b>(i,j)[0] << " " << img.at<cv::Vec3b>(i,j)[1] << " " << img.at<cv::Vec3b>(i,j)[2] << std::endl;
+--> Simple way to go through all pixels of image
+----------------------------------------------------------------------------------------------------------
+TYPE of MATRIX --> CV_[The number of bits per item][Signed or Unsigned][Type Prefix]C[The channel number]
+cvtColor(img, toImg, COLOR_BGR2GRAY) --> this will convert your image from rgb to gray and save it in toImg
+A litle bit about Color Systems
+RGB is the most common as our eyes use something similar, however keep in mind that OpenCV standard display system composes colors using the BGR color space (red and blue channels are swapped places).
+The HSV and HLS decompose colors into their hue, saturation and value/luminance components, which is a more natural way for us to describe colors. You might, for example, dismiss the last component, making your algorithm less sensible to the light conditions of the input image.
+YCrCb is used by the popular JPEG image format.
+CIE L*a*b* is a perceptually uniform color space, which comes in handy if you need to measure the distance of a given color to another color
+GaussianBlur(img, imgblur, Size(3,3), 3, 0);
+Canny(imgblur, imgCanny, 25,75); --> it will calculate the edges
+Mat kernel = getStructuringElement(MORPH_RECT, Size(5,5)); --> getting the kernel
+dilate(img, dilatedimg, kernel)--> it will dilate (расширять) the edges of picture
+erode(can, er, kernel) --> it will erode(размывать) the edges if picture
+--> all this functions are very handy when you are detecting shapes
+----------------------------------------Resize and Crop---------------------------------------------------
+resize(img, imgRes, Size(400, 200)); --> this will resize your image to Size(x,y) !!without keeping aspect ratio
+resize(img, imgRes, Size(), double_x, double_y); --> this will scale your image in x by doulbe_x, in y by double_y
+!!!!NOTE: x --> ; y v ||||||||| x right, y down
+Rect roi(100, 200, 400, 300); (x,y,width, height)
+imgCrop = img(roi); --> Croping imgCrop from img
+----------------------------------------Drawing shapes and text----------------------------------------------
+Mat img(512, 512, CV_8UC3, Scalar(0,0,0)); --> creating new black image
+circle(img, Point(256, 256), 100, Scalar(255, 255, 255)); --> drawing circle at 256,256 with 100 radius and white color
+circle(img, Point(256, 256), 100, Scalar(255, 255, 255), 10); --> also if you want to add manually thickness  = 10
+circle(img, Point(256, 256), 100, Scalar(255, 255, 255), FILLED); -->if you want to fill
+rectangle(img, Point(130, 226), Point(382, 286), Scalar(0, 0, 0), FILLED); --> left top corner point1, and right bottom corner point2
+also --> Rect roi(100, 200, 400, 300); (x,y,width, height) --> call function using object rect
+rectangle(img, roi, Scalar(0,0,0), FILLED); --> thickness options are the same as circle's
+line(img, Point(130, 296), Point(382, 296), Scalar(0, 0, 0), 2); --> to draw line, start point, end point ,color,  thikness
+putText(img, "TextTextText TExT", Point(137, 262), FONT_HERSHEY_PLAIN, 2, Scalar(209, 166, 48),2); --> Text you want to write, point of writing, Font of text, scale, color and thickness
+--------------------------------------------Warp Perspective -------------------------------------------------------------
+at first we need to check the points of corners of object
+after that we need to write destination image points
+Point2f pts[4] = { {60, 320}, {340, 278}, {89, 633} ,{404, 572} };
+Point2f d[4] = { {0,0}, {w, 0}, {0, h}, {w,h} };
+Mat m = getPerspectiveTransform(pts, d); --> after making matrix we have to get the object perspective image
+warpPerspective(img, imgWarp, m, Point(w, h)); --> matrix, weight , hight
+----------------------------------------------Color Detection-----------------------------------------------------------------
+so at first we need to convert our image to HSV format
+cvtColor(img, imgH, COLOR_BGR2HSV);
+Scalar lower(hmin, smin, vmin); --> setting color lower bound
+Scalar upper(hmax, smax, vmax); --> setting color upper bound
+inRange(imgH, lower, upper, mask); --> finding color by bounds and saving it to mask
+
+if you dont know the HSV parameters of your color you can pick them using trackbars (ползунок)
+namedWindow("Track", (640, 200)); --> creating windows where will be the trackbars
+createTrackbar("Hue min", "Track", &hmin, 179);
+createTrackbar("Hue max", "Track", &hmax, 179);
+createTrackbar("Sat min", "Track", &smin, 255);
+createTrackbar("Sat max", "Track", &smax, 255);  // all this are for changing values through trackbar
+createTrackbar("Val min", "Track", &vmin, 255);
+createTrackbar("Val max", "Track", &vmax, 255);
+while(true)
+{
+	inRange(imgH, lower, upper, mask);
+	imshow("mask", mask);
+	waitKey(1);
+}
+-------------------------------------------------Shape detection-----------------------------------------------------------
+Steps
+read --> gray --> blur -- > canny --> dilate
+after dilating we have to find contours
+we need 
+vector<vector<Point>> contours; --> points of contours
+vector<Vec4i> hierarchy; --> 4 dimension vector which type is int
+findContours(imdDil, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE); --> Idk what is this
+drawContours(img, contours, -1, Scalar(255,0,255),2); --> it will draw whatever is in countours in img with 2 thickness and purple color
